@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Recipe</title>
+    <style>
+        /* Resetting some basic styles for consistency */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            display: flex;
+            justify-content: space-between;
+            width: 80%;
+            max-width: 1200px;
+            height: fit-content;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        /* Form container styles */
+        .form-container {
+            width: 50%;
+            background-color: #fff;
+            padding: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-container h2 {
+            text-align: center;
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .form-container label {
+            font-weight: bold;
+            color: #6c5ce7;
+        }
+
+        .form-container input, .form-container textarea {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background-color: #f9f9f9;
+        }
+
+        .form-container input:focus, .form-container textarea:focus {
+            border-color: #6c5ce7;
+            box-shadow: 0 0 8px rgba(108, 92, 231, 0.3);
+        }
+
+        .form-container button {
+            padding: 12px;
+            background-color: #6c5ce7;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .form-container button:hover {
+            background-color: #5a4cc3;
+        }
+
+        /* Preview container styles */
+        .preview-container {
+            width: 45%;
+            background-color: #fff;
+            padding: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .preview-container h3 {
+            font-size: 22px;
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .preview-container .recipe-preview {
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .recipe-name {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .ingredients-preview, .instructions-preview {
+            margin-top: 20px;
+        }
+
+        .ingredients-preview h4, .instructions-preview h4 {
+            color: #000;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .ingredients-preview ul, .instructions-preview ol {
+            margin-left: 20px;
+        }
+
+        .ingredients-preview li, .instructions-preview li {
+            margin-bottom: 10px;
+        }
+
+        .ingredients-preview li:before, .instructions-preview li:before {
+            content: "\2022";
+            color: #000;
+            font-weight: bold;
+            display: inline-block;
+            width: 1em;
+            margin-left: -1em;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                gap: 30px;
+            }
+
+            .form-container, .preview-container {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Form Container -->
+        <div class="form-container">
+            <h2>Add Your Recipe</h2>
+            <form method="post">
+                {% csrf_token %}
+                
+                <!-- Recipe name input -->
+                {{ recipe_form.as_p }}
+                
+                <!-- Ingredients input -->
+                <div>
+                    <label for="ingredients">{{ ingredient_form.label }}</label>
+                    {{ ingredient_form.as_p }}
+                </div>
+
+                <!-- Instructions input -->
+                <div>
+                    <label for="instructions">{{ instruction_form.label }}</label>
+                    {{ instruction_form.as_p }}
+                </div>
+
+                <button type="submit">Add Recipe</button>
+            </form>
+        </div>
+
+        <!-- Recipe Preview Container -->
+        <div class="preview-container">
+            <h3>Recipe Preview</h3>
+            <div class="recipe-preview">
+                <div class="recipe-name" id="recipeNamePreview">Recipe Name</div>
+                <div class="ingredients-preview">
+                    <h4>Ingredients</h4>
+                    <ul id="ingredientsPreview">
+                        <!-- Ingredients will appear here -->
+                    </ul>
+                </div>
+                <div class="instructions-preview">
+                    <h4>Instructions</h4>
+                    <ol id="instructionsPreview">
+                        <!-- Instructions will appear here -->
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get elements from the form
+        const recipeName = document.querySelector('input[name="name"]');
+        const ingredientsTextarea = document.querySelector('textarea[name="ingredients"]');
+        const instructionsTextarea = document.querySelector('textarea[name="instructions"]');
+
+        // Update the recipe preview when the user types in the form
+        recipeName.addEventListener('input', updatePreview);
+        ingredientsTextarea.addEventListener('input', updatePreview);
+        instructionsTextarea.addEventListener('input', updatePreview);
+
+        function updatePreview() {
+            // Update recipe name preview
+            document.getElementById('recipeNamePreview').textContent = recipeName.value || 'Recipe Name';
+
+            // Update ingredients preview
+            const ingredients = ingredientsTextarea.value.split('\n').filter(line => line.trim() !== '');
+            const ingredientsList = document.getElementById('ingredientsPreview');
+            ingredientsList.innerHTML = ingredients.map(ingredient => `<li>${ingredient.trim()}</li>`).join('');
+
+            // Update instructions preview
+            const instructions = instructionsTextarea.value.split('\n').filter(line => line.trim() !== '');
+            const instructionsList = document.getElementById('instructionsPreview');
+            instructionsList.innerHTML = instructions.map((instruction, index) => `Step ${index + 1}: ${instruction.trim()}</li>`).join('');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+<!-- RecipeApp/templates/RecipeApp/update_recipe.html -->
+{% extends "base.html" %}
+
+{% block title %}Update Recipe{% endblock %}
+
+{% block content %}
+<h1>Update Recipe</h1>
+<form method="POST">
+    {% csrf_token %}
+    {{ recipe_form.as_p }}
+    <button type="submit" class="btn btn-success">Save Changes</button>
+    <a href="{% url 'home' %}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}

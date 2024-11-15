@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Recipe Management{% endblock %}
+
+{% block content %}
+<h1>All Recipes</h1>
+<a class="btn btn-primary mb-3" href="{% url 'add_recipe' %}">Add New Recipe</a>
+<ul class="list-group">
+    {% for recipe in recipes %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div>
+                <h4>{{ recipe.name }}</h4>
+                <p>{{ recipe.description }}</p>
+            </div>
+            <div>
+                <a class="btn btn-info btn-sm" href="{% url 'recipe_detail' recipe.id %}">View</a>
+                <a class="btn btn-warning btn-sm" href="{% url 'update_recipe' recipe.id %}">Edit</a>
+                <a class="btn btn-danger btn-sm" href="{% url 'delete_recipe' recipe.id %}" 
+                onclick="return confirm('Are you sure you want to delete this recipe?');">Delete</a>
+            </div>
+        </li>
+    {% endfor %}
+</ul>
+{% endblock %}

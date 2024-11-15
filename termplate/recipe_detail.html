@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}{{ recipe.name }}{% endblock %}
+
+{% block content %}
+<h1>{{ recipe.name }}</h1>
+<p>{{ recipe.description }}</p>
+
+<h3>Ingredients</h3>
+<ul class="list-group">
+    {% for ingredient in ingredients %}
+        <li class="list-group-item">
+            <input type="checkbox" class="form-check-input me-2"> {{ ingredient.name }} - {{ ingredient.quantity }}
+        </li>
+    {% endfor %}
+</ul>
+
+<h3 class="mt-4">Instructions</h3>
+<ol class="list-group list-group-numbered">
+    {% for instruction in instructions %}
+        <li class="list-group-item">
+            <input type="checkbox" class="form-check-input me-2"> {{ instruction.instruction }}
+        </li>
+    {% endfor %}
+</ol>
+{% endblock %}
